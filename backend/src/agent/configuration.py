@@ -10,11 +10,6 @@ class Configuration(BaseModel):
         description = "Decide how to accomplish the task (multi-step reasoning)"
     )
 
-    prompt_enhancer: str = Field(
-        default="gemini-2.0-flash",
-        description= "Enhancer a user prompt"
-    )
-
     perception_model: str = Field(
         default="gemini-2.0-flash",
         description="Understand what's happening on screen and what user wants"
