@@ -26,11 +26,16 @@ class WebState(TypedDict, total=False):
     url: Optional[str]
     prompt: Optional[str]
     keyword: Optional[str]
+    title: Optional[str]
     summary: Optional[str]
     output_text: Optional[str]
 
 class ContentState(TypedDict, total=False):
     prompt: Optional[str]
+    title: Optional[str]
+    url: Optional[str]
+    keyword: Optional[str]
     output_text_from_url: Optional[str]
+    pdf_filename: Optional[str]
     pdf_file_path: Optional[str]
     pdf_generated: bool

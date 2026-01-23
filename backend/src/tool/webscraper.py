@@ -82,6 +82,7 @@ def scrape_and_summarize(url:str, keyword: Optional[str] = None) -> dict:
     if not full_content:
         return {
             'title': 'Error',
+            'url': url,
             'quick_summary': 'Could not access webpage',
             'extended_text': 'Failed to scrape content',
             'full_content': '',
@@ -94,6 +95,7 @@ def scrape_and_summarize(url:str, keyword: Optional[str] = None) -> dict:
 
     return {
         'title': title or 'Untitled',
+        'url': url,
         'quick_summary': quick_summary,
         'extended_text': extended_text,
         'full_content': full_content,
