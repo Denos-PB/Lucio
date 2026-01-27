@@ -1,0 +1,8 @@
+pydantic
+langchain
+langgraph
+pillow
+requests
+beautifulsoup4
+reportlab
+langchain_google_genai
