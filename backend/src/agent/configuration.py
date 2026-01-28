@@ -6,23 +6,23 @@ from langchain_core.runnables import RunnableConfig
 
 class Configuration(BaseModel):
     planning_model: str = Field(
-        default="gemini-2.0-flash",
-        description = "Decide how to accomplish the task (multi-step reasoning)"
+        default="llama3.2:latest",
+        description = "Decide how to accomplish the task (multi-step reasoning) - text-only model"
     )
 
     perception_model: str = Field(
-        default="gemini-2.0-flash",
-        description="Understand what's happening on screen and what user wants"
+        default="llava:7b",
+        description="Understand what's happening on screen and what user wants - vision model"
     )
 
     web_model: str = Field(
-        default="gemini-2.0-flash",
-        description="Interact with web content"
+        default="llama3.2:latest",
+        description="Interact with web content - text-only model"
     )
 
     content_model: str = Field(
-        default="gemini-2.0-flash",
-        description="Process and transform content"
+        default="llama3.2:latest",
+        description="Process and transform content - text-only model for better quality"
     )
 
     max_retries: int = Field(
