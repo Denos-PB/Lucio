@@ -46,6 +46,16 @@ class PDFGenerator:
             alignment=TA_LEFT,
             spaceAfter=6
         ))
+        
+        self.styles.add(ParagraphStyle(
+            name='Heading2',
+            parent=self.styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#1f4788'),
+            spaceAfter=8,
+            spaceBefore=12,
+            alignment=TA_LEFT
+        ))
 
     def generate_meaningful_filename(
         self,
@@ -108,11 +118,49 @@ class PDFGenerator:
             ))
             story.append(Spacer(1, 0.3*inch))
             
-            paragraphs = content.split('\n\n')
-            for para in paragraphs:
-                if para.strip():
-                    story.append(Paragraph(para.strip(), self.styles['CustomBody']))
-                    story.append(Spacer(1, 0.1*inch))
+            # Better content parsing - handle markdown-style headings and lists
+            lines = content.split('\n')
+            current_paragraph = []
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    # Empty line - flush current paragraph
+                    if current_paragraph:
+                        para_text = ' '.join(current_paragraph)
+                        story.append(Paragraph(para_text, self.styles['CustomBody']))
+                        story.append(Spacer(1, 0.1*inch))
+                        current_paragraph = []
+                elif line.startswith('##'):
+                    # Heading - flush paragraph first, then add heading
+                    if current_paragraph:
+                        para_text = ' '.join(current_paragraph)
+                        story.append(Paragraph(para_text, self.styles['CustomBody']))
+                        story.append(Spacer(1, 0.1*inch))
+                        current_paragraph = []
+                    # Add heading (remove ## and make bold)
+                    heading_text = line.replace('##', '').strip()
+                    story.append(Paragraph(f"<b>{heading_text}</b>", self.styles['Heading2']))
+                    story.append(Spacer(1, 0.15*inch))
+                elif line.startswith('-') or line.startswith('*'):
+                    # Bullet point - flush paragraph, add bullet
+                    if current_paragraph:
+                        para_text = ' '.join(current_paragraph)
+                        story.append(Paragraph(para_text, self.styles['CustomBody']))
+                        story.append(Spacer(1, 0.1*inch))
+                        current_paragraph = []
+                    bullet_text = line.lstrip('-*').strip()
+                    story.append(Paragraph(f"• {bullet_text}", self.styles['CustomBody']))
+                    story.append(Spacer(1, 0.05*inch))
+                else:
+                    # Regular text - accumulate into paragraph
+                    current_paragraph.append(line)
+            
+            # Flush any remaining paragraph
+            if current_paragraph:
+                para_text = ' '.join(current_paragraph)
+                story.append(Paragraph(para_text, self.styles['CustomBody']))
+                story.append(Spacer(1, 0.1*inch))
 
             doc.build(story)
             
