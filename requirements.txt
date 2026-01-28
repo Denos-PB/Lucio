@@ -2,7 +2,16 @@ pydantic
 langchain
 langgraph
 pillow
+fastapi
 requests
 beautifulsoup4
 reportlab
-langchain_google_genai
+uvicorn[standard]
+python-dotenv
+langchain-community 
+httpx
+langchain-ollama
+pvporcupine
+pyaudio
+faster-whisper
+numpy
