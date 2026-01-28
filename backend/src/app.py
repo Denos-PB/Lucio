@@ -8,6 +8,8 @@ from .agent.graph import build_graph
 from .agent.state import OverallState
 from dotenv import load_dotenv
 
+from fastapi.middleware.cors import CORSMiddleware
+
 load_dotenv()
 
 start_screen_stream(interval=1.0)
@@ -16,9 +18,17 @@ workflow = build_graph().compile()
 
 app = FastAPI(title="Lucio Agent API")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 class RunRequest(BaseModel):
     prompt: str
-    url: str | None = None  # Optional: user can provide URL directly as fallback
+    url: str | None = None
 
 class RunResponse(BaseModel):
     request_id: str
@@ -33,7 +43,7 @@ def run_agent(req: RunRequest) -> RunResponse:
     initial_state: OverallState = {
         "request_id": request_id,
         "input_prompt": req.prompt,
-        "detected_url": req.url,  # Use provided URL if available (fallback)
+        "detected_url": req.url,
         "status": "pending",
         "messages": [],
         "errors": [],
