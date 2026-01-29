@@ -11,13 +11,18 @@ Voice-first local agent for summarizing the current webpage into a PDF.
 - Extracts the current URL (vision)
 - Scrapes the page
 - Creates a readable PDF summary
+- Stores each run in PostgreSQL as history
+
+---
 
 ## Requirements
 
 - Windows 10/11
 - Python 3.11+ recommended (your environment uses 3.13)
-- Node.js 18+ (only if you want the optional React UI)
+- PostgreSQL 14+ (local or Docker)
 - Ollama installed and running
+
+---
 
 ## Models (Ollama)
 
@@ -39,7 +44,40 @@ ollama pull llava:7b
 ollama pull llama3.2:latest
 ```
 
-## Setup (Python)
+---
+
+## PostgreSQL setup
+
+### 1. Create database and user
+
+In `psql` (or any Postgres client), run:
+
+```sql
+CREATE DATABASE lucio;
+CREATE USER lucio_user WITH PASSWORD 'your_strong_password';
+GRANT ALL PRIVILEGES ON DATABASE lucio TO lucio_user;
+```
+
+### 2. `.env` configuration
+
+In the project root, your `.env` should include:
+
+```env
+PICOVOICE_ACCESS_KEY=your_picovoice_key_here
+DATABASE_URL=postgresql+psycopg2://lucio_user:your_strong_password@localhost:5432/lucio
+```
+
+Adjust host/port/user/password/db name to match your setup.
+
+Lucio will:
+
+- Connect to this DB on startup,
+- Auto-create a `conversations` table,
+- Insert one row per `/run` with prompt, URL, status, PDF path, and errors.
+
+---
+
+## Python setup
 
 Create and activate a venv, then install requirements:
 
@@ -50,17 +88,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-## Environment variables
-
-Create a `.env` in the project root (or set env vars in PowerShell):
-
-- `PICOVOICE_ACCESS_KEY` (required for Porcupine)
-
-Example `.env`:
-
-```env
-PICOVOICE_ACCESS_KEY=your_key_here
-```
+---
 
 ## Run (one command)
 
@@ -74,24 +102,18 @@ python .\run_lucio.py
 
 ### How to use
 
-1. Open a browser page on screen
-2. Say **"Lucio"**
-3. Say your request, e.g. **"Summarize this page and create a PDF"**
+1. Open a browser page on screen  
+2. Say **"Lucio"**  
+3. Say your request, e.g. **"Summarize this page and create a PDF"**  
 4. The console prints the PDF path when done
 
 PDFs are saved under `./outputs`.
 
-## Optional: React UI (debug/dashboard)
+Each run is also stored in the `conversations` table in your PostgreSQL `lucio` database.
 
-If you want the optional frontend:
+Backend must be running too (`run_lucio.py` already starts it).
 
-```powershell
-cd D:\Projects\Lucio\frontend
-npm install
-npm run dev
-```
-
-Backend must be running too (the launcher already starts it).
+---
 
 ## Troubleshooting
 
@@ -125,3 +147,16 @@ Your config must match model names shown in:
 ollama list
 ```
 
+For example, your config uses `llama3.2:latest` and `llava:7b`.
+
+### DATABASE_URL errors
+
+If you see:
+
+> `DATABASE_URL environment variable is not set`
+
+make sure your `.env` has a valid `DATABASE_URL` and that PostgreSQL is running, e.g.:
+
+```env
+DATABASE_URL=postgresql+psycopg2://lucio_user:your_strong_password@localhost:5432/lucio
+```
